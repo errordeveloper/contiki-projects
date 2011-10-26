@@ -60,9 +60,8 @@ PROCESS_THREAD(example_psock_client_process, ev, data)
 {
   uip_ip6addr_t addr;
 
-  printf("Client running.\n");
-
   PROCESS_BEGIN();
+  printf("Client running.\n");
 
   uip_ip6addr(&addr, 0xaaaa,0,0,0,0,0,0,1);
   tcp_connect(&addr, UIP_HTONS(8080), NULL);
