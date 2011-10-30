@@ -132,6 +132,21 @@ PT_THREAD(generate_routes(struct httpd_state *s))
 
   SEND_STRING(&s->sout, TOP);
 
+  /* JSON.parse('{"neighbors":["fe80::250:c2a8:c001:e000",[]],"routes":[["aaaa::250:c2a8:c001:e000",128,"fe80::250:c2a8:c001:e000",16711420],[]]}');
+  * { neighbors: [ 'fe80::250:c2a8:c001:e000', [] ],
+  *     routes:
+  *      [ [ 'aaaa::250:c2a8:c001:e000',
+  *          128,
+  *          'fe80::250:c2a8:c001:e000',
+  *          16711420 ],
+  *      [] ] }
+  */
+  /* XXX: Should the '[]' padding be avoided and
+   *      if it should - why is it so much better?
+   *      Cause we would need to check conditions
+   *      that probably means adding a variable..!
+   */
+
   blen = 0;
   ADD("\"neighbors\":[");
   for(i = 0; i < UIP_DS6_NBR_NB; i++) {
@@ -145,24 +160,21 @@ PT_THREAD(generate_routes(struct httpd_state *s))
     }
   }
 
-  ADD("],\"routes\":[");
+  ADD("[]],\"routes\":[");
   SEND_STRING(&s->sout, buf);
   blen = 0;
   for(i = 0; i < UIP_DS6_ROUTE_NB; i++) {
     if(uip_ds6_routing_table[i].isused) {
+      ADD("[");
       ipaddr_add(&uip_ds6_routing_table[i].ipaddr);
-      ADD("/%u (via ", uip_ds6_routing_table[i].length);
+      ADD(",%u,", uip_ds6_routing_table[i].length);
       ipaddr_add(&uip_ds6_routing_table[i].nexthop);
-      if(uip_ds6_routing_table[i].state.lifetime < 600) {
-        ADD(") %lus\",", uip_ds6_routing_table[i].state.lifetime);
-      } else {
-        ADD(")\",");
-      }
+      ADD(",%lu],", uip_ds6_routing_table[i].state.lifetime);
       SEND_STRING(&s->sout, buf);
       blen = 0;
     }
   }
-  ADD("]");
+  ADD("[]]");
   if(blen > 0) {
     SEND_STRING(&s->sout, buf);
     blen = 0;
