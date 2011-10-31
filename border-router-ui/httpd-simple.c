@@ -78,11 +78,6 @@ static const char *NOT_FOUND = "<html><body bgcolor=\"white\">"
 "</center>"
 "</body>"
 "</html>";
-
-static const char *TEMPLATE = "<!doctype html>"
-"<html><head>"
-"<script src=\"http://git.io/1BnU6A\">"
-"</script></head>";
 /*---------------------------------------------------------------------------*/
 static
 PT_THREAD(send_string(struct httpd_state *s, const char *str))
@@ -94,8 +89,12 @@ PT_THREAD(send_string(struct httpd_state *s, const char *str))
   PSOCK_END(&s->sout);
 }
 /*---------------------------------------------------------------------------*/
-//const char http_content_type_html[] = "Content-type: text/html\r\n\r\n";
-const char http_content_type_html[] = "Content-type: text/plain\r\n\r\n";
+#if (CONTENT_TYPE == JSON)
+const char http_content_type[] = "Content-type: text/plain\r\n\r\n";
+#else
+const char http_content_type[] = "Content-type: text/html\r\n\r\n";
+#endif
+
 static
 PT_THREAD(send_headers(struct httpd_state *s, const char *statushdr))
 {
@@ -122,7 +121,7 @@ PT_THREAD(send_headers(struct httpd_state *s, const char *statushdr))
   /*   s->ptr = http_content_type_binary; */
   /* } */
   /* SEND_STRING(&s->sout, s->ptr); */
-  SEND_STRING(&s->sout, http_content_type_html);
+  SEND_STRING(&s->sout, http_content_type);
   PSOCK_END(&s->sout);
 }
 /*---------------------------------------------------------------------------*/

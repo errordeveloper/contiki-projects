@@ -90,14 +90,22 @@ PROCESS_THREAD(webserver_nogui_process, ev, data)
 }
 AUTOSTART_PROCESSES(&border_router_process,&webserver_nogui_process);
 
-/* Use text/plain for validating JSON format */
-static const char *TOP = "{"; //"<html><head><title>ContikiRPL</title></head><body>\n";
-static const char *BOTTOM = "}"; //"</body></html>\n";
+#if (CONTENT_TYPE == JSON)
+static const char *HEAD = "{";
+static const char *TAIL = "}";
+#else
+static const char *HEAD = "<!DOCTYPE html>\n"
+                          "<html><head>"
+                          "<script src='"
+                          "https://raw.github.com/gist/1322099/6833cfcd0b19f1db4be89b5b7167112a8660659c/cui.js"
+                          "'></script><script>"
+                          "gen_ui('border_router',{";
+static const char *TAIL = "});\n</script></head><body></body></html>";
+#endif
+
 static char buf[128];
 static int blen;
-#define ADD(...) do {                                                   \
-    blen += snprintf(&buf[blen], sizeof(buf) - blen, __VA_ARGS__);      \
-  } while(0)
+
 /*---------------------------------------------------------------------------*/
 static void
 ipaddr_add(const uip_ipaddr_t *addr)
@@ -130,7 +138,7 @@ PT_THREAD(generate_routes(struct httpd_state *s))
   static int i;
   PSOCK_BEGIN(&s->sout);
 
-  SEND_STRING(&s->sout, TOP);
+  SEND_STRING(&s->sout, HEAD);
 
   /* JSON.parse('{"neighbors":["fe80::250:c2a8:c001:e000",[]],"routes":[["aaaa::250:c2a8:c001:e000",128,"fe80::250:c2a8:c001:e000",16711420],[]]}');
   * { neighbors: [ 'fe80::250:c2a8:c001:e000', [] ],
@@ -148,6 +156,7 @@ PT_THREAD(generate_routes(struct httpd_state *s))
    */
 
   blen = 0;
+
   ADD("\"neighbors\":[");
   for(i = 0; i < UIP_DS6_NBR_NB; i++) {
     if(uip_ds6_nbr_cache[i].isused) {
@@ -180,7 +189,7 @@ PT_THREAD(generate_routes(struct httpd_state *s))
     blen = 0;
   }
 
-  SEND_STRING(&s->sout, BOTTOM);
+  SEND_STRING(&s->sout, TAIL);
 
   PSOCK_END(&s->sout);
 }

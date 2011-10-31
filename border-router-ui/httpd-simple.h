@@ -71,4 +71,16 @@ httpd_simple_script_t httpd_simple_get_script(const char *name);
 
 #define SEND_STRING(s, str) PSOCK_SEND(s, (uint8_t *)str, strlen(str))
 
+#define ADD(...) do {                                                   \
+blen += snprintf(&buf[blen], sizeof(buf) - blen, __VA_ARGS__);      \
+} while(0)
+
+/* Use text/plain for validating JSON format */
+#define JSON 1
+#define HTML 2
+
+#ifndef CONTENT_TYPE
+#  define CONTENT_TYPE HTML
+#endif
+
 #endif /* __HTTPD_SIMPLE_H__ */
