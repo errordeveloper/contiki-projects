@@ -72,12 +72,19 @@ MEMB(conns, struct httpd_state, CONNS);
 #define ISO_slash   0x2f
 
 /*---------------------------------------------------------------------------*/
-static const char *NOT_FOUND = "<html><body bgcolor=\"white\">"
-"<center>"
-"<h1>404 - file not found</h1>"
-"</center>"
-"</body>"
-"</html>";
+#if (CONTENT_TYPE == HTML)
+static const char *NOT_FOUND = "<!DOCTYPE html><html><head>"
+"<script src='cui.js'></script><script>\n"
+"gen_ui('err',{"
+#else
+static const char *NOT_FOUND = "{\"err\":"
+#endif
+"404}"
+#if (CONTENT_TYPE == HTML)
+");\n</script></head><body></body></html>"
+#endif
+;
+
 /*---------------------------------------------------------------------------*/
 static
 PT_THREAD(send_string(struct httpd_state *s, const char *str))

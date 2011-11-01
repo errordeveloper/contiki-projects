@@ -140,15 +140,6 @@ PT_THREAD(generate_routes(struct httpd_state *s))
 
   SEND_STRING(&s->sout, HEAD);
 
-  /* JSON.parse('{"neighbors":["fe80::250:c2a8:c001:e000",[]],"routes":[["aaaa::250:c2a8:c001:e000",128,"fe80::250:c2a8:c001:e000",16711420],[]]}');
-  * { neighbors: [ 'fe80::250:c2a8:c001:e000', [] ],
-  *     routes:
-  *      [ [ 'aaaa::250:c2a8:c001:e000',
-  *          128,
-  *          'fe80::250:c2a8:c001:e000',
-  *          16711420 ],
-  *      [] ] }
-  */
   /* XXX: Should the '[]' padding be avoided and
    *      if it should - why is it so much better?
    *      Cause we would need to check conditions
