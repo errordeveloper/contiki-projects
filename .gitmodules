@@ -1,0 +1,3 @@
+[submodule "cloud-face"]
+	path = cloud-face
+	url = git@github.com:/errordeveloper/contiki-cloud-face.git
