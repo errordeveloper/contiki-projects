@@ -35,7 +35,7 @@ static struct etimer timer;
 static struct psock ps;
 static char buffer[100];
 
-PROCESS(example_psock_client_process, "Example protosocket client");
+PROCESS(example_psock_client_process, "Pachube test client");
 AUTOSTART_PROCESSES(&example_psock_client_process);
 
 /*---------------------------------------------------------------------------*/
@@ -44,8 +44,8 @@ handle_connection(struct psock *p)
 {
   PSOCK_BEGIN(p);
 
-  PSOCK_SEND_STR(p, "GET / HTTP/1.0\r\n");
-  PSOCK_SEND_STR(p, "Server: Contiki example protosocket client\r\n");
+  PSOCK_SEND_STR(p, "GET /feeds/504.csv HTTP/1.0\r\n");
+  PSOCK_SEND_STR(p, "User-Agent: econotag\r\n");
   PSOCK_SEND_STR(p, "\r\n");
 
   while(1) {
@@ -61,16 +61,18 @@ PROCESS_THREAD(example_psock_client_process, ev, data)
   uip_ip6addr_t addr;
 
   PROCESS_BEGIN();
-  printf("Client running.\n");
 
+  /* Use nginx proxy that is mapping our local
+   * `::0:82` to `https://api.pachub.com/v2/`
+  */
   uip_ip6addr(&addr, 0xaaaa,0,0,0,0,0,0,1);
-  tcp_connect(&addr, UIP_HTONS(8080), NULL);
+  tcp_connect(&addr, UIP_HTONS(82), NULL);
 
-  printf("Connecting...\n");
+  printf("Trying...\n");
   PROCESS_WAIT_EVENT_UNTIL(ev == tcpip_event);
 
   if(uip_aborted() || uip_timedout() || uip_closed()) {
-    printf("Could not establish connection.\n");
+    printf("Failed!\n");
   } else if(uip_connected()) {
     printf("Connected.\n");
 
@@ -81,7 +83,7 @@ PROCESS_THREAD(example_psock_client_process, ev, data)
       PROCESS_WAIT_EVENT_UNTIL(ev == tcpip_event);
     } while(!(uip_closed() || uip_aborted() || uip_timedout()));
 
-    printf("\nConnection closed.\n");
+    printf("\nClosed.\n");
   }
   PROCESS_END();
 }
