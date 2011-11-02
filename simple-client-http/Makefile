@@ -16,7 +16,7 @@ UIP_CONF_IPV6=1
 include $(CONTIKI)/Makefile.include
 
 router:
-	cd $(CONTIKI)/examples/ipv6/rpl-border-router/ \
+	cd ../border-router-ui/ \
 	&& make border-router.load \
 	&& make connect-router-xterm
 endif
