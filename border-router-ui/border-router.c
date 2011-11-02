@@ -148,7 +148,11 @@ PT_THREAD(generate_routes(struct httpd_state *s))
 
   blen = 0;
 
+#if (CONTENT_TYPE == JSON)
   ADD("\"neighbors\":[");
+#else
+  ADD("neighbors:[");
+#endif
   for(i = 0; i < UIP_DS6_NBR_NB; i++) {
     if(uip_ds6_nbr_cache[i].isused) {
       ipaddr_add(&uip_ds6_nbr_cache[i].ipaddr);
@@ -160,7 +164,11 @@ PT_THREAD(generate_routes(struct httpd_state *s))
     }
   }
 
+#if (CONTENT_TYPE == JSON)
   ADD("[]],\"routes\":[");
+#else
+  ADD("[]],routes:[");
+#endif
   SEND_STRING(&s->sout, buf);
   blen = 0;
   for(i = 0; i < UIP_DS6_ROUTE_NB; i++) {
