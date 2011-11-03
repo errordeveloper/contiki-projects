@@ -98,7 +98,7 @@ static const char *HEAD = "<!DOCTYPE html>\n"
                           "<html><head>"
                           "<script src='"
                           "http://bit.ly/cfui-js"
-                          "'></script><script>"
+                          "'></script><script>\n"
                           "gen_ui('border_router',{";
 static const char *TAIL = "});\n</script></head><body></body></html>";
 #endif
